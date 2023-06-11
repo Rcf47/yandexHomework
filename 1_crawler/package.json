@@ -1,0 +1,14 @@
+{
+  "name": "1_crawler",
+  "version": "1.0.0",
+  "description": "Homework_website_crawler",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Vadim Cherepanov",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
