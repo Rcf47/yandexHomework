@@ -9,7 +9,6 @@
   "author": "Vadim Cherepanov",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.18.2",
-    "fetcher": "^0.3.0"
+    "express": "^4.18.2"
   }
 }
