@@ -1,9 +1,9 @@
-import express, { json } from 'express';
-import { fetch } from 'fetcher';
+const express = require('express')
+const fetcher = require('fetcher')
 
 const app = express();
 
-app.use(json());
+app.use(express.json());
 
 app.post('/parse', async (req, res) => {
   const { domainName } = req.body;
@@ -21,7 +21,7 @@ app.post('/parse', async (req, res) => {
     visited.add(currentUrl);
 
     try {
-      const html = await fetch(currentUrl);
+      const html = await fetcher.fetch(currentUrl);
       const parser = new DOMParser();
       const doc = parser.parseFromString(html, 'text/html');
       const anchorTags = doc.getElementsByTagName('a');
