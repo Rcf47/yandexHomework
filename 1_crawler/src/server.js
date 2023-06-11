@@ -1,6 +1,5 @@
-const express = require('express')
-const fetcher = require('fetcher')
-
+const express = require('express');
+const { fetcher } = require('../fetcher.js');
 const app = express();
 
 app.use(express.json());
@@ -8,8 +7,7 @@ app.use(express.json());
 app.post('/parse', async (req, res) => {
   const { domainName } = req.body;
   const visited = new Set();
-  const links = [];
-  const initialUrlArray = [`http://${domainName}`];
+  const initialUrlArray = [`${domainName}`];
 
   while (initialUrlArray.length > 0) {
     const currentUrl = initialUrlArray.pop();
@@ -21,33 +19,26 @@ app.post('/parse', async (req, res) => {
     visited.add(currentUrl);
 
     try {
-      const html = await fetcher.fetch(currentUrl);
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(html, 'text/html');
-      const anchorTags = doc.getElementsByTagName('a');
+      const html = await fetcher(currentUrl);
+      const linkPattern = /href="([^"]*)"/gi;
+      const htmlText = await html.text()
+      const links = htmlText.match(linkPattern).map(link => link.replace('href="', '').replace('"', ''));
 
-      for (let i = 0; i < anchorTags.length; i++) {
-        const link = anchorTags[i].getAttribute('href');
-
-        if (link.startsWith('/')) {
-          links.push(`http://${domainName}${link}`);
-        } else if (link.startsWith('http')) {
+      initialUrlArray.push(...links.filter(link => {
+        try {
           const { hostname } = new URL(link);
-
-          if (hostname === domainName) {
-            links.push(link);
-          }
+          return `https://${hostname}` === domainName;
+        } catch (error) {
+          return false;
         }
-      }
+      }).filter(link => !visited.has(link)));
 
-      initialUrlArray.push(...links.filter(link => !visited.has(link)));
-      links.length = 0;
     } catch (error) {
       console.error(`Error crawling ${currentUrl}: ${error.message}`);
     }
   }
 
-  res.json([...new Set(links)]);
+  res.json([...visited]);
 });
 
 app.listen(3000, () => {
