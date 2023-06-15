@@ -30,6 +30,6 @@ module.exports = async function({ minPrice, maxPrice, catalog }) {
     }
   };
 
-  const products = await processObject(catalog);
-  return products;
+  const result = await processObject(catalog);
+  return result;
 };
