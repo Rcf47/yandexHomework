@@ -1,27 +1,36 @@
 module.exports = Sequence;
 
 function Sequence(from, to, step) {
-  if (!(this instanceof Sequence)) { return new Sequence(from, to, step); }
+  if (!(this instanceof Sequence)) {
+    return new Sequence(from, to, step);
+  }
 
-  if (typeof from !== 'number' || typeof to !== 'number' || typeof step !== 'number' || step <= 0) { throw new TypeError('Invalid arguments'); }
+  let currentValue = from;
+  let iterationCount = Math.ceil((to - from) / step);
 
-  this.from = from; this.to = to; this.step = step;
+  this[Symbol.iterator] = function*() {
+    for (let i = 0; i <= iterationCount; i++) {
+      yield currentValue;
+      currentValue += step;
+    }
+  };
+
+  this.setStep = function(newStep) {
+    step = newStep;
+    iterationCount = Math.ceil((to - currentValue) / step);
+    return step;
+  };
+
+  this.valueOf = function() {
+    return currentValue;
+  };
+
+  this.toString = function() {
+    return 'Sequence of numbers from ' + from + ' to ' + to + ' with step ' + step;
+  };
 }
 
-Sequence.prototype[Symbol.iterator] = function*() { let current = this.from; while (current <= this.to) { yield current; current += this.step; } };
+let sequence = Sequence(0, 10, 1)
 
-Sequence.prototype.setStep = function(step) {
-  if (typeof step !== 'number' || step <= 0) { throw new TypeError('Invalid step'); }
+console.log(Object.prototype.toString.call(sequence))
 
-  this.step = step;
-};
-
-Sequence.prototype.constructor = Sequence;
-
-Sequence.prototype[Symbol.toStringTag] = 'SequenceOfNumbers';
-
-Sequence.prototype.toString = function() {
-  return `Sequence of numbers from ${this.from} to ${this.to} with step ${this.step}`;
-};
-
-Sequence.prototype.valueOf = function() { let length = Math.floor((this.to - this.from) / this.step) + 1; return length; };
